@@ -8,39 +8,61 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.dchat.data.model.User
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dchat.ui.theme.DChatTheme
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.dchat.ui.home.viewmodel.HomeViewModel
+import com.example.dchat.ui.home.viewmodel.UsersState
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    users: List<User>,
     onUserClick: (User) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val usersState by viewModel.usersState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("DChat") },
                 actions = {
-                    IconButton(onClick = onLogout) {
+                    IconButton(onClick = { viewModel.logout(onLogout) }) {
                         Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }
                 }
             )
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            items(users) { user ->
-                UserItem(user = user, onClick = { onUserClick(user) })
-                HorizontalDivider()
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            when (usersState) {
+                is UsersState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is UsersState.Error -> {
+                    Text(
+                        text = (usersState as UsersState.Error).message,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                is UsersState.Success -> {
+                    val users = (usersState as UsersState.Success).users
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(users) { user ->
+                            UserItem(user = user, onClick = { onUserClick(user) })
+                            HorizontalDivider()
+                        }
+                    }
+                }
             }
         }
     }
@@ -59,13 +81,7 @@ fun UserItem(user: User, onClick: () -> Unit) {
 @Composable
 fun HomeScreenPreview() {
     DChatTheme {
-        HomeScreen(
-            users = listOf(
-                User("1", "Alby", "alby@example.com"),
-                User("2", "Hari", "hari@example.com")
-            ),
-            onUserClick = {},
-            onLogout = {}
-        )
+        // Updated preview logic could go here if needed, or keeping it simple
+        UserItem(user = User("1", "Alby", "alby@example.com"), onClick = {})
     }
 }

@@ -62,7 +62,6 @@ fun DChatAppNavigation() {
         }
         composable(Screen.Home.route) {
             HomeScreen(
-                users = emptyList(), // Will be populated by ViewModel later
                 onUserClick = { user ->
                     navController.navigate(Screen.Chat.createRoute(user.id, user.username))
                 },
