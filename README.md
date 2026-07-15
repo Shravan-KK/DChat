@@ -42,7 +42,7 @@ DChat is a unified, real-time messaging application designed for campus projects
 3. Create a `.env` file in the `backend` folder and add your credentials:
    ```env
    PORT=3000
-   DATABASE_URL=postgresql://your_user:your_password@localhost:5432/dchat
+   DATABASE_URL=postgresql://your_user:your_password@localhost:your_port_no/dchat
    JWT_SECRET=your_secret_key
    ```
 4. Start the server:
@@ -65,4 +65,3 @@ DChat is a unified, real-time messaging application designed for campus projects
 4. **Persist:** Log out and log back in to see your chat history preserved!
 
 ---
-*Developed with ❤️ for campus collaboration.*
