@@ -17,7 +17,10 @@ class AuthRepository @Inject constructor(
     suspend fun login(request: LoginRequest): Response<AuthResponse> {
         val response = authApi.login(request)
         if (response.isSuccessful) {
-            response.body()?.token?.let { tokenManager.saveToken(it) }
+            val body = response.body()
+            if (body != null) {
+                tokenManager.saveAuthData(body.token, body.user.id)
+            }
         }
         return response
     }
@@ -25,14 +28,18 @@ class AuthRepository @Inject constructor(
     suspend fun signup(request: SignupRequest): Response<AuthResponse> {
         val response = authApi.signup(request)
         if (response.isSuccessful) {
-            response.body()?.token?.let { tokenManager.saveToken(it) }
+            val body = response.body()
+            if (body != null) {
+                tokenManager.saveAuthData(body.token, body.user.id)
+            }
         }
         return response
     }
 
     fun getToken() = tokenManager.getToken()
+    fun getUserId() = tokenManager.getUserId()
 
     suspend fun logout() {
-        tokenManager.clearToken()
+        tokenManager.clearAll()
     }
 }

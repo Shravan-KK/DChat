@@ -18,6 +18,13 @@ import com.example.dchat.ui.home.HomeScreen
 import com.example.dchat.ui.theme.DChatTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.dchat.ui.chat.viewmodel.ChatViewModel
+import com.example.dchat.ui.home.HomeScreen
+import com.example.dchat.ui.theme.DChatTheme
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,11 +87,15 @@ fun DChatAppNavigation() {
             )
         ) { backStackEntry ->
             val receiverName = backStackEntry.arguments?.getString("receiverName") ?: "Chat"
+            val chatViewModel: ChatViewModel = hiltViewModel()
+            val messages by chatViewModel.messages.collectAsState()
+            val currentUserId by chatViewModel.currentUserIdState.collectAsState()
+            
             ChatScreen(
                 receiverName = receiverName,
-                messages = emptyList(), // Will be populated by ViewModel later
-                currentUserId = "temp_user_id", // Will be fetched from Auth later
-                onSendMessage = { /* Will be handled by ViewModel later */ },
+                messages = messages,
+                currentUserId = currentUserId,
+                onSendMessage = { chatViewModel.sendMessage(it) },
                 onBack = { navController.popBackStack() }
             )
         }

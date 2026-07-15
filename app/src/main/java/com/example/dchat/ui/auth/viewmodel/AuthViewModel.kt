@@ -27,7 +27,8 @@ class AuthViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     _authState.value = AuthState.Success
                 } else {
-                    _authState.value = AuthState.Error("Login failed")
+                    val errorBody = response.errorBody()?.string()
+                    _authState.value = AuthState.Error(errorBody ?: "Login failed")
                 }
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Unknown error")

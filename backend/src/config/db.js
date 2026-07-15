@@ -1,6 +1,8 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
 
+import logger from '../utils/logger.js';
+
 dotenv.config();
 
 const client = new pg.Client({
@@ -10,9 +12,9 @@ const client = new pg.Client({
 
 try {
   await client.connect();
-  console.log('Connected to the PostgreSQL database');
+  logger.info('Connected to the PostgreSQL database');
 } catch (err) {
-  console.error('Database connection error:', err.stack);
+  logger.error('Database connection error:', { error: err.stack });
   process.exit(-1);
 }
 

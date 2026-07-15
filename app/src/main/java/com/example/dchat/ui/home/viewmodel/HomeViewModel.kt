@@ -5,16 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.dchat.data.model.User
 import com.example.dchat.repository.AuthRepository
 import com.example.dchat.repository.UserRepository
+import com.example.dchat.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val chatRepository: ChatRepository
 ) : ViewModel() {
 
     private val _usersState = MutableStateFlow<UsersState>(UsersState.Loading)
@@ -22,6 +25,16 @@ class HomeViewModel @Inject constructor(
 
     init {
         fetchUsers()
+        joinSocketRoom()
+    }
+
+    private fun joinSocketRoom() {
+        viewModelScope.launch {
+            val userId = authRepository.getUserId().firstOrNull()
+            userId?.let {
+                chatRepository.joinRoom(it)
+            }
+        }
     }
 
     fun fetchUsers() {

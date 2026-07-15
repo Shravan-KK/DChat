@@ -6,7 +6,8 @@ data class User(
     @SerializedName("id") val id: String,
     @SerializedName("username") val username: String,
     @SerializedName("email") val email: String,
-    @SerializedName("last_seen") val lastSeen: String? = null
+    @SerializedName("last_seen") val lastSeen: String? = null,
+    @SerializedName("unread_count") val unreadCount: Int = 0
 )
 
 data class AuthResponse(

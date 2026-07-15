@@ -1,25 +1,28 @@
 package com.example.dchat.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.example.dchat.data.model.User
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.dchat.ui.theme.DChatTheme
-
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.dchat.data.model.User
 import com.example.dchat.ui.home.viewmodel.HomeViewModel
 import com.example.dchat.ui.home.viewmodel.UsersState
+import com.example.dchat.ui.theme.DChatTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +32,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val usersState by viewModel.usersState.collectAsState()
+
+    // Refresh user list whenever we navigate back to this screen
+    // This ensures the unread indicator disappears after viewing messages
+    LaunchedEffect(Unit) {
+        viewModel.fetchUsers()
+    }
 
     Scaffold(
         topBar = {
@@ -73,6 +82,16 @@ fun UserItem(user: User, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(user.username) },
         supportingContent = { Text(user.email) },
+        trailingContent = {
+            if (user.unreadCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+            }
+        },
         modifier = Modifier.clickable { onClick() }
     )
 }
@@ -81,7 +100,6 @@ fun UserItem(user: User, onClick: () -> Unit) {
 @Composable
 fun HomeScreenPreview() {
     DChatTheme {
-        // Updated preview logic could go here if needed, or keeping it simple
-        UserItem(user = User("1", "Alby", "alby@example.com"), onClick = {})
+        UserItem(user = User("1", "Alby", "alby@example.com", unreadCount = 1), onClick = {})
     }
 }

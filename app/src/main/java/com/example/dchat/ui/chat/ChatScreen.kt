@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.example.dchat.data.model.Message
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dchat.ui.theme.DChatTheme
@@ -27,6 +28,14 @@ fun ChatScreen(
     onBack: () -> Unit
 ) {
     var text by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
+
+    // Scroll to bottom when messages change
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size - 1)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -46,13 +55,14 @@ fun ChatScreen(
                 .fillMaxSize()
         ) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
-                reverseLayout = true
+                reverseLayout = false
             ) {
-                items(messages.reversed()) { message ->
+                items(messages) { message ->
                     MessageBubble(
                         message = message,
                         isCurrentUser = message.senderId == currentUserId
